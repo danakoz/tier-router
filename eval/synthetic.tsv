@@ -1,0 +1,109 @@
+haiku	what does git stash pop do?
+haiku	rename the variable cnt to count in utils.py
+haiku	list the files in this directory
+haiku	fix the typo "recieve" in README.md
+haiku	what's the default port for postgres?
+haiku	how do I undo the last commit but keep the changes?
+haiku	what's the difference between let and const in javascript
+haiku	show me the git log for the last 5 commits
+haiku	bump the version in package.json to 2.4.1
+haiku	what does the -p flag do in mkdir
+haiku	run the tests
+haiku	is python 3.12 installed here?
+haiku	delete the build folder
+haiku	what time zone is this machine set to
+haiku	add .env to .gitignore
+haiku	convert this to uppercase: hello world
+haiku	how many lines are in main.rs
+haiku	what's the command to list docker containers including stopped ones
+haiku	change the log level in config.toml from debug to info
+haiku	what branch am I on
+haiku	explain what a mutex is in one paragraph
+haiku	push it
+haiku	thanks, that worked
+haiku	open the PR
+haiku	what does HTTP 429 mean
+haiku	sort these words alphabetically: pear, apple, mango, kiwi
+haiku	install ripgrep
+haiku	what's in the .github folder
+haiku	is the CI green?
+haiku	remove the unused import of os in cli.py
+haiku	what's the syntax for a python list comprehension with a condition
+haiku	print my PATH
+haiku	tag this commit as v1.2.0 and push the tag
+haiku	how do I exit vim
+haiku	here is a 200 line error log from npm install, the last line says "EACCES: permission denied, mkdir /usr/lib/node_modules". what's wrong?
+haiku	I've been reading a lot about distributed systems lately, consensus, raft, paxos, all that stuff, and I was just wondering, what year was the raft paper published?
+haiku	what's the url of this repo's remote
+haiku	add a comment above the retry loop in client.go saying why we cap at 5 tries
+sonnet	add a --verbose flag to the CLI that logs each HTTP request, with a test
+sonnet	write a python script that converts all the CSVs in a folder to one parquet file
+sonnet	why does this jest test fail with "cannot read properties of undefined (reading 'map')"? here's the component
+sonnet	add pagination to the /users endpoint in our express app
+sonnet	write a dockerfile for this rust project with a small final image
+sonnet	add input validation to the signup form: email format, password at least 12 chars, show errors inline
+sonnet	write unit tests for the parse_duration function, cover the edge cases
+sonnet	the build fails with "error[E0382]: borrow of moved value: `config`" in main.rs line 88, fix it
+sonnet	add a dark mode toggle to the settings page that persists in localStorage
+sonnet	write a github actions workflow that runs pytest on push and caches pip
+sonnet	refactor the 300 line handle_request function in server.py into smaller functions, keep behavior the same
+sonnet	add retry with exponential backoff to the http client, max 5 attempts
+sonnet	the date shows as UTC in the dashboard, make it show the user's local time
+sonnet	write a bash script that backs up ~/projects to an external drive with rsync and keeps 7 daily copies
+sonnet	add a /health endpoint that checks the db connection and returns 503 if it's down
+sonnet	explain how this repo's auth middleware works and where tokens are validated
+sonnet	add CSV export to the reports page
+sonnet	migrate this file from requests to httpx, keep it sync
+sonnet	set up eslint and prettier for this project with sensible defaults and fix what they flag
+sonnet	the docker compose stack fails to start, postgres says "role app does not exist", fix the init
+sonnet	implement a LRU cache class in typescript with get, put and a max size, with tests
+sonnet	add a progress bar to the download command
+sonnet	write a sql migration that adds a nullable email_verified_at column to users and backfills it from the audit table
+sonnet	our api returns 500 when the request body is empty, make it return 400 with a clear message
+sonnet	add i18n support to the settings page for english and hebrew, including RTL
+sonnet	write a script that finds duplicate images in a folder by perceptual hash
+sonnet	add rate limiting to the login endpoint, 5 attempts per minute per IP
+sonnet	the app crashes on startup with "ModuleNotFoundError: No module named 'yaml'" in the docker image, fix it
+sonnet	add a man page and --help text for every subcommand of the cli
+sonnet	convert the class components in src/components to hooks
+sonnet	write integration tests for the /orders API using the test database
+sonnet	add a config option to choose the log format (json or text)
+sonnet	debug why the cron job doesn't run, here's the crontab line: */5 * * * * /home/me/run.sh
+sonnet	create a small CLI in go that tails a log file and highlights lines matching a regex
+sonnet	add websocket reconnect logic to the chat client
+sonnet	go through the README and update it to match the current CLI flags
+opus	our rust service deadlocks under load about once a day; here are the lock orderings across 6 modules, find the cause
+opus	design the sync protocol for an offline-first mobile app with conflict resolution across devices
+opus	review this 1800-line PR that rewrites windows route metrics and linux tc capture for a virtual LAN, for real bugs
+opus	migrate our monolith's auth from sessions to OAuth2 + PKCE across 40 files without breaking existing logins
+opus	figure out why packets sent from a wine game bound with SO_BINDTODEVICE never reach our TUN adapter
+opus	why is it slow?
+opus	it still fails sometimes, find out why
+opus	make it production ready
+opus	the numbers in the monthly report don't match the database by about 2%, find where the discrepancy comes from
+opus	design a plugin system for our editor so third parties can add languages without recompiling
+opus	our kubernetes pods get OOMKilled randomly but memory graphs look flat, investigate
+opus	audit the whole codebase for security issues before we open source it
+opus	we need to shard the postgres database, propose a plan and migrate the orders table first
+opus	there's a race somewhere between the cache invalidation and the write path, users sometimes see stale prices
+opus	rewrite the scheduler so jobs survive a node crash and never run twice
+opus	figure out why the app uses 3x more battery on android 15 than on 14
+opus	the tests pass locally but fail on CI about 1 in 10 runs, find the flake and fix the root cause
+opus	plan the architecture for moving our single-region app to multi-region with low latency writes
+opus	our p99 latency doubled after the last deploy but nothing obvious changed, find the cause
+opus	implement end to end encryption for the chat feature, including key rotation and multi-device
+opus	the memory leak only happens in production, here are heap snapshots from 3 days apart
+opus	why do some users get logged out randomly? we can't reproduce it
+opus	make the whole thing airtight, fix everything that could go wrong
+opus	decide whether we should move from REST to gRPC for internal services and do the first service if it's worth it
+opus	the floating point results differ between x86 and arm builds of our physics engine, track it down
+opus	refactor the payment module so it supports multiple providers, it's 4000 lines of tangled code with no tests
+opus	find out why our TCP tunnel stalls for exactly 200ms on small writes over the mesh
+opus	write a compiler pass that inlines small functions in our DSL, keeping debug info correct
+opus	the sync between the mobile app and the server loses edits when two devices go offline, fix it properly
+opus	reverse engineer the binary protocol this old game uses for LAN discovery from these pcaps and implement it
+opus	go over everything we did today and check nothing is broken before the release
+opus	is our replication setup actually safe if the primary dies mid-transaction? prove it or fix it
+opus	the build takes 40 minutes, cut it down without dropping tests
+opus	port the networking layer from tokio to a custom io_uring runtime and keep the same API
+opus	why does the vpn drop only when the laptop switches from wifi to ethernet?

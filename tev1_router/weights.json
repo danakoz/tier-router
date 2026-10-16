@@ -1,0 +1,15 @@
+{
+  "w_tier": 2,
+  "w_deep": 0.5,
+  "w_effort": 2,
+  "w_hard": 2,
+  "w_symptom": 2,
+  "w_check": 2,
+  "w_scope": 2,
+  "w_act": 1,
+  "w_long": 0,
+  "w_simple": 1,
+  "w_quick": 2,
+  "t_sonnet": 0.20017153345953148,
+  "t_opus": 0.3178137523724304
+}

@@ -1,0 +1,45 @@
+haiku	what's the newest version of node LTS you know of
+haiku	stage everything and commit with message "wip"
+haiku	how big is the target folder
+haiku	what does chmod 755 mean
+haiku	pull the latest main
+haiku	show me the diff
+haiku	which port is the dev server running on
+haiku	ok merge
+haiku	what's a good name for a function that strips html tags
+haiku	add my email to the authors list in Cargo.toml
+haiku	is this regex correct for an email: ^\S+@\S+$ ? just yes or no and why
+haiku	close the PR without merging
+haiku	how do I see which process is using port 3000
+haiku	fix the indentation in config.yaml, it uses tabs
+haiku	what did we change in the last commit?
+sonnet	add a --dry-run flag to the deploy script that prints what it would do
+sonnet	the login page shows a blank screen and the console says "Uncaught TypeError: user is null" at Header.jsx:14, fix it
+sonnet	write a python function that parses ISO 8601 durations, with tests
+sonnet	add caching to the weather api calls, 10 minute ttl
+sonnet	create a makefile with build, test, lint and release targets for this go project
+sonnet	update all the dependencies and fix whatever breaks
+sonnet	add sorting by column to the users table in the admin panel
+sonnet	write a systemd service file for the bot and a script to install it
+sonnet	add a settings screen for the notification preferences, save them to the api
+sonnet	the docker image is 2GB, make it smaller
+sonnet	add structured logging with request ids to the express app
+sonnet	write a scraper that saves the product prices from this page to a csv every hour
+sonnet	our eslint run fails on 30 files after upgrading to v9, migrate the config
+sonnet	yes go ahead and implement it
+sonnet	add an export to PDF button on the invoice page
+opus	sometimes the websocket messages arrive out of order, find out why and fix it properly
+opus	is our token refresh flow safe against replay attacks? check and fix
+opus	design the data model for multi-tenant billing with usage based pricing
+opus	the game desyncs between players after about 20 minutes of play, investigate
+opus	our search results got worse after the index rebuild, figure out what changed
+opus	review the whole PR, it touches the scheduler, the storage layer and the api
+opus	CPU spikes to 100% every night at 3am and the server becomes unresponsive, nothing in the logs
+opus	plan and implement zero downtime deploys for the whole stack
+opus	the mesh network partitions heal but some nodes never see each other again
+opus	find everything that could break before we release this to 10k users
+opus	why doesn't the vpn route the game traffic even though the routes look right?
+opus	rewrite the parser to be incremental so the editor stays fast on huge files
+opus	the encryption between the client and the relay is homemade, audit it
+opus	our numbers in grafana and in the billing db disagree, find the source of truth and fix the pipeline
+opus	check if the sandbox actually isolates the plugins from the host filesystem

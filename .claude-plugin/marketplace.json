@@ -1,0 +1,13 @@
+{
+  "name": "tev1-router",
+  "description": "tev1-router: picks Haiku, Sonnet or Opus for each Claude Code prompt with a local tev1 decision model.",
+  "owner": {
+    "name": "idan2025"
+  },
+  "plugins": [
+    {
+      "name": "tev1-router",
+      "source": "./"
+    }
+  ]
+}
