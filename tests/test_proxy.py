@@ -43,9 +43,9 @@ def main():
     threading.Thread(target=api.serve_forever, daemon=True).start()
     log = ROOT / "tests/.decisions.jsonl"
     log.unlink(missing_ok=True)
-    env = {**os.environ, "TEV1_ROUTER_UPSTREAM": "http://127.0.0.1:8799", "TEV1_ROUTER_LOG": str(log),
-           "TEV1_ROUTER_HAIKU": "h", "TEV1_ROUTER_SONNET": "s", "TEV1_ROUTER_OPUS": "o"}
-    proxy = subprocess.Popen([sys.executable, "-s", "-m", "tev1_router.proxy", "--port", "8788"],
+    env = {**os.environ, "TIER_ROUTER_UPSTREAM": "http://127.0.0.1:8799", "TIER_ROUTER_LOG": str(log),
+           "TIER_ROUTER_HAIKU": "h", "TIER_ROUTER_SONNET": "s", "TIER_ROUTER_OPUS": "o"}
+    proxy = subprocess.Popen([sys.executable, "-s", "-m", "tier_router.proxy", "--port", "8788"],
                              cwd=ROOT, env=env, stderr=subprocess.PIPE, text=True)
     try:
         print(proxy.stderr.readline().strip())

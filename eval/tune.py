@@ -6,13 +6,13 @@ costs 1. Fitted on two thirds of the cases and reported on the held-out
 third, then refitted on all of them for weights.json.
 
   python3 -I eval/tune.py            # report only
-  python3 -I eval/tune.py --write    # also write tev1_router/weights.json
+  python3 -I eval/tune.py --write    # also write tier_router/weights.json
 """
 import itertools, json, random, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tev1_router.classify import NEGATIVE, POSITIVE, TIERS, WEIGHTS_FILE, features, score, tier_for
+from tier_router.classify import NEGATIVE, POSITIVE, TIERS, WEIGHTS_FILE, features, score, tier_for
 from collect import HERE, key, load_blind, load_cases
 
 RANK = {t: i for i, t in enumerate(TIERS)}
@@ -157,7 +157,7 @@ def main():
     if "--write" in sys.argv:
         WEIGHTS_FILE.write_text(json.dumps(w_all, indent=2) + "\n")
         print(f"\nwrote {WEIGHTS_FILE}")
-        from tev1_router import export_ts
+        from tier_router import export_ts
         export_ts.main()
 
 

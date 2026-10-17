@@ -1,6 +1,6 @@
-// tev1-router: before each prompt's turn, ask tev1 (a local decision model in
-// Ollama) which of Haiku, Sonnet or Opus the prompt needs, and send every
-// model request of that turn to it.
+// tier-router: before each prompt's turn, ask tev1 (a local decision model in
+// Ollama) or Jev (TypeSafe's cloud decision model) which of Haiku, Sonnet or
+// Opus the prompt needs, and send every model request of that turn to it.
 //
 // - The decision is made once per turn, at `turn.start`, and every step of the
 //   turn (its tool-result follow-ups) uses it: a turn never changes model
@@ -8,7 +8,7 @@
 // - A score close to a threshold keeps the session's current tier: switching
 //   model starts the prompt cache over.
 // - Subagents keep the model they were given.
-// - If tev1 is unreachable or slow, the turn keeps the session's model.
+// - If the decision model is unreachable or slow, the turn keeps the session's model.
 
 import type { EngineInterface as Engine, Register } from 'claude-code'
 
@@ -18,26 +18,29 @@ const HYSTERESIS = 0.03
 const TIMEOUT_MS = 8000
 
 type Decision = { tier: Tier; score: number; ms: number; prompt: string; kept?: boolean }
-type Config = { ollama: string; tev1: string }
+type Config = { backend: 'ollama' | 'jev'; url: string; model: string; apiKey: string }
 
 async function giveUp($: Engine, ms: number): Promise<never> {
   await $.clock.sleep(ms)
   throw new Error(`no answer in ${ms / 1000} s`)
 }
 
-/** tev1's tier for a prompt, or why there is none. */
+/** The decision model's tier for a prompt, or why there is none. */
 async function decide($: Engine, cfg: Config, prompt: string, context: string, current: Tier | undefined): Promise<Decision | string> {
   const started = await $.clock.now()
   try {
     const res = await Promise.race([
-      $.http.fetch(`${cfg.ollama}/v1/systemone`, {
+      $.http.fetch(`${cfg.url}/v1/systemone`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: request(cfg.tev1, prompt, context),
+        headers: {
+          'content-type': 'application/json',
+          ...(cfg.backend === 'jev' ? { authorization: `Bearer ${cfg.apiKey}` } : {}),
+        },
+        body: request(cfg.model, prompt, context, cfg.backend === 'ollama'),
       }),
       giveUp($, TIMEOUT_MS),
     ])
-    if (!res.ok) return `tev1 answered HTTP ${res.status}`
+    if (!res.ok) return `${cfg.backend} answered HTTP ${res.status}`
     const answers = JSON.parse(res.text).answers as Answers
     const s = score(features(prompt, answers))
     let tier = tierFor(s)
@@ -48,7 +51,7 @@ async function decide($: Engine, cfg: Config, prompt: string, context: string, c
     }
     return { tier, score: s, ms: (await $.clock.now()) - started, prompt: prompt.slice(0, 80), kept }
   } catch (err) {
-    return `tev1 unreachable (${err instanceof Error ? err.message : String(err)})`
+    return `${cfg.backend} unreachable (${err instanceof Error ? err.message : String(err)})`
   }
 }
 
@@ -58,9 +61,12 @@ export const register: Register = (on, options) => {
     sonnet: String(options.sonnetModel ?? 'claude-sonnet-5-5'),
     opus: String(options.opusModel ?? 'claude-opus-5-5'),
   }
+  const backend: Config['backend'] = options.backend === 'jev' ? 'jev' : 'ollama'
   const cfg: Config = {
-    ollama: String(options.ollamaUrl ?? 'http://localhost:11434').replace(/\/+$/, ''),
-    tev1: String(options.tev1Model ?? 'tev1'),
+    backend,
+    url: String(backend === 'jev' ? options.jevUrl || 'https://api.typesafe.ai' : options.ollamaUrl || 'http://localhost:11434').replace(/\/+$/, ''),
+    model: String(backend === 'jev' ? options.jevModel || 'jev-latest' : options.tev1Model || 'tev1'),
+    apiKey: String(options.jevApiKey || ''),
   }
 
   const turns = new Map<string, Promise<Decision | string>>()
@@ -77,7 +83,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'router',
-      description: 'tev1-router: show recent routing decisions; `/router off` or `/router on` to switch it',
+      description: 'tier-router: show recent routing decisions; `/router off` or `/router on` to switch it',
       argumentHint: '[on|off]',
     })
     return next(e)
@@ -88,7 +94,7 @@ export const register: Register = (on, options) => {
     if (arg === 'off' || arg === 'on') {
       isOn = arg === 'on'
       $.ui.status(isOn ? undefined : 'router off')
-      return { text: `tev1-router is ${isOn ? 'on' : 'off'} for this session.` }
+      return { text: `tier-router is ${isOn ? 'on' : 'off'} for this session.` }
     }
     const lines = recent.length
       ? recent.map(d =>
@@ -98,7 +104,7 @@ export const register: Register = (on, options) => {
         )
       : ['No prompts routed yet in this session.']
     return {
-      text: [`tev1-router is ${isOn ? 'on' : 'off'}. Models: ${models.haiku}, ${models.sonnet}, ${models.opus}.`, '', ...lines].join('\n'),
+      text: [`tier-router is ${isOn ? 'on' : 'off'}. Models: ${models.haiku}, ${models.sonnet}, ${models.opus}.`, '', ...lines].join('\n'),
     }
   })
 
@@ -109,7 +115,7 @@ export const register: Register = (on, options) => {
       void pending.then(d => {
         if (typeof d !== 'string') current = d.tier
         remember(d)
-        $.ui.status(typeof d === 'string' ? 'router: tev1 unavailable' : `router → ${d.tier}`)
+        $.ui.status(typeof d === 'string' ? `router: ${cfg.backend} unavailable` : `router → ${d.tier}`)
       })
     }
     return next(e)

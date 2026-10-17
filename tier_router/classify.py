@@ -21,6 +21,11 @@ OLLAMA = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 if not OLLAMA.startswith("http"):
     OLLAMA = "http://" + OLLAMA
 MODEL = os.environ.get("TEV1_MODEL", "tev1")
+# The same question set can go to a cloud Jev instead (ROUTER_BACKEND=jev):
+# TypeSafe's /v1/systemone takes the same body and answers in the same shape.
+BACKEND = os.environ.get("ROUTER_BACKEND", "ollama")
+JEV_URL = os.environ.get("TYPESAFE_URL", "https://api.typesafe.ai").rstrip("/")
+JEV_MODEL = os.environ.get("JEV_MODEL", "jev-latest")
 TIERS = ("haiku", "sonnet", "opus")
 
 QUESTIONS = {
@@ -124,10 +129,21 @@ def state_for(prompt, context=""):
 
 
 def ask_tev1(prompt, context="", timeout=30):
-    """tev1's raw answers for one request."""
-    body = json.dumps({"model": MODEL, "state": state_for(prompt, context),
-                       "questions": QUESTIONS, "keep_alive": "30m"}).encode()
-    req = urllib.request.Request(f"{OLLAMA}/v1/systemone", body, {"Content-Type": "application/json"})
+    """The decision model's raw answers for one request (local tev1 or cloud Jev)."""
+    body = {"state": state_for(prompt, context), "questions": QUESTIONS}
+    headers = {"Content-Type": "application/json"}
+    if BACKEND == "jev":
+        key = os.environ.get("TYPESAFE_API_KEY", "")
+        if not key:
+            raise RuntimeError("ROUTER_BACKEND=jev needs TYPESAFE_API_KEY")
+        body["model"] = JEV_MODEL
+        headers["Authorization"] = "Bearer " + key
+        url = f"{JEV_URL}/v1/systemone"
+    else:
+        body["model"] = MODEL
+        body["keep_alive"] = "30m"
+        url = f"{OLLAMA}/v1/systemone"
+    req = urllib.request.Request(url, json.dumps(body).encode(), headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read())["answers"]
 

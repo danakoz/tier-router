@@ -5,7 +5,7 @@ trimming re-asks only what changed."""
 import hashlib, json, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from tev1_router.classify import QUESTIONS, ask_tev1, state_for
+from tier_router.classify import QUESTIONS, ask_tev1, state_for
 
 HERE = Path(__file__).resolve().parent
 

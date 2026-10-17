@@ -1,9 +1,9 @@
-# tev1-router
+# tier-router
 
-A Claude Code plugin that picks **Haiku, Sonnet or Opus for each prompt you type**, using
-[tev1](https://ollama.com/library/tev1), a small decision model that runs locally in Ollama.
+A Claude Code plugin that picks **Haiku, Sonnet or Opus for each prompt you type**, using a small
+decision model: [tev1](https://ollama.com/library/tev1) running locally in Ollama, or [Jev](https://docs.typesafe.ai/models.md) in TypeSafe's cloud.
 
-- **No Claude tokens spent on routing.** tev1 runs on your machine; Claude is called exactly as often as without the plugin.
+- **No Claude tokens spent on routing.** tev1 runs on your machine (Jev is an optional cloud call); Claude is called exactly as often as without the plugin.
 - **No proxy, no `ANTHROPIC_BASE_URL`.** It sets the model of each request from inside Claude Code.
 - **Built not to miss hard tasks.** In tuning, sending an Opus task lower counts as a worse mistake than sending an easy task to Opus.
 
@@ -18,11 +18,23 @@ ollama pull tev1
 Then, at the prompt of a Claude Code terminal session:
 
 ```
-/plugin install tev1-router --marketplace idan2025/tev1-router
+/plugin install tier-router --marketplace idan2025/tier-router
 ```
 
 Answer `y` to add the marketplace and pick a scope (user scope routes every session). From a shell, the same is
-`claude plugin install tev1-router --marketplace idan2025/tev1-router`.
+`claude plugin install tier-router --marketplace idan2025/tier-router`.
+
+## Cloud Jev instead of local tev1
+
+The router can ask [Jev](https://docs.typesafe.ai/models.md), TypeSafe's cloud decision model, instead of a local tev1. Both
+serve `/v1/systemone` with the same questions and answers, so only the endpoint and the key change. Set `backend` to `jev`
+and `jevApiKey` in `/plugin` (or under `pluginConfigs`); `jevModel` (default `jev-latest`) and `jevUrl` are optional.
+Jev is billed per input token and the prompt text leaves your machine, which tev1 never does. For the Python
+eval and proxy, set `ROUTER_BACKEND=jev` and `TYPESAFE_API_KEY`.
+
+**The thresholds were fitted on tev1's answers.** Jev's probabilities differ, so rerun
+`python3 -I eval/collect.py` and `eval/tune.py --blind` with `ROUTER_BACKEND=jev` before trusting its tiers
+(`eval/cache.json` holds tev1's answers, so move it aside first).
 
 ## Use
 
@@ -73,9 +85,9 @@ of tuning and scored once, at the end.
 | | Accuracy | Opus tasks missed | Easy tasks sent to Opus |
 | --- | --- | --- | --- |
 | tev1's own choice, blind set | 89% | 2 of 15 | 1 of 30 |
-| **tev1-router, blind set** | **91%** | **0 of 15** | 1 of 30 |
+| **tier-router, blind set** | **91%** | **0 of 15** | 1 of 30 |
 | tev1's own choice, 141 tuning prompts | 82% | 17 of 49 | 2 of 92 |
-| tev1-router, 5-fold cross-validation on the 141 | 86% | 6 of 49 | 5 of 92 |
+| tier-router, 5-fold cross-validation on the 141 | 86% | 6 of 49 | 5 of 92 |
 
 Caveats:
 - **These are small samples, labeled by one person.** tev1's model card reports about 73% on public
@@ -91,17 +103,17 @@ python3 -I eval/collect.py      # asks tev1 about new prompts (cached)
 python3 -I eval/tune.py --blind --write
 ```
 
-`--write` updates `tev1_router/weights.json` and regenerates `hooks/model.ts`, which the plugin reads.
+`--write` updates `tier_router/weights.json` and regenerates `hooks/model.ts`, which the plugin reads.
 The plugin's TypeScript and the evaluation's Python compute identical scores (checked on all 186 prompts).
 
 ## Without the plugin: the proxy
 
-`bin/tev1-router-proxy` runs the same router as a local proxy between Claude Code and the API. It's for setups
+`bin/tier-router-proxy` runs the same router as a local proxy between Claude Code and the API. It's for setups
 where plugins can't run. It needs only Python 3.
 
 ```sh
-bin/tev1-router-proxy claude      # starts the proxy and runs Claude Code through it
-bin/tev1-router-proxy log         # recent decisions
+bin/tier-router-proxy claude      # starts the proxy and runs Claude Code through it
+bin/tier-router-proxy log         # recent decisions
 ```
 
 `tests/test_proxy.py` checks it against a fake API.

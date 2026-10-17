@@ -1,6 +1,6 @@
 // Which Claude tier a request needs: tev1's answers to four questions and a
 // few keyword signals, folded into one difficulty score and cut by two fitted
-// thresholds. The same computation as tev1_router/classify.py, which the
+// thresholds. The same computation as tier_router/classify.py, which the
 // evaluation in eval/ runs; the data both use is generated into model.ts.
 
 import { NEGATIVE, POSITIVE, QUESTIONS, QUICK, SIGNALS, WEIGHTS } from './model.ts'
@@ -31,9 +31,11 @@ export function stateFor(prompt: string, context = ''): string {
   return parts.join('\n\n')
 }
 
-/** The body of a POST to Ollama's /v1/systemone. */
-export function request(model: string, prompt: string, context = ''): string {
-  return JSON.stringify({ model, state: stateFor(prompt, context), questions: QUESTIONS, keep_alive: '30m' })
+/** The body of a POST to /v1/systemone: Ollama's (tev1) or TypeSafe's (Jev),
+ * which take the same questions. `keep_alive` is Ollama's alone. */
+export function request(model: string, prompt: string, context = '', local = true): string {
+  const body = { model, state: stateFor(prompt, context), questions: QUESTIONS }
+  return JSON.stringify(local ? { ...body, keep_alive: '30m' } : body)
 }
 
 function count(rx: RegExp, text: string): number {

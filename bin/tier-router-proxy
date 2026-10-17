@@ -1,17 +1,17 @@
 #!/bin/bash
-# tev1-router-proxy: run Claude Code with tev1 picking Haiku, Sonnet or Opus per prompt.
+# tier-router-proxy: run Claude Code with tev1 picking Haiku, Sonnet or Opus per prompt.
 #
-#   tev1-router-proxy claude [claude args…]   start the proxy if needed, run Claude Code through it
-#   tev1-router-proxy start | stop | status
-#   tev1-router-proxy log [n]                 the last n routing decisions (default 20)
+#   tier-router-proxy claude [claude args…]   start the proxy if needed, run Claude Code through it
+#   tier-router-proxy start | stop | status
+#   tier-router-proxy log [n]                 the last n routing decisions (default 20)
 #
-# Env: TEV1_ROUTER_PORT (8787), TEV1_ROUTER_HAIKU/SONNET/OPUS (model ids),
-#      TEV1_ROUTER_HYSTERESIS (0.03), OLLAMA_HOST.
+# Env: TIER_ROUTER_PORT (8787), TIER_ROUTER_HAIKU/SONNET/OPUS (model ids),
+#      TIER_ROUTER_HYSTERESIS (0.03), OLLAMA_HOST.
 set -euo pipefail
-HOME_DIR="${TEV1_ROUTER_HOME:-$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)}"
-PORT="${TEV1_ROUTER_PORT:-8787}"
-STATE="$HOME/.cache/tev1-router"
-LOG="${TEV1_ROUTER_LOG:-$STATE/decisions.jsonl}"
+HOME_DIR="${TIER_ROUTER_HOME:-$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)}"
+PORT="${TIER_ROUTER_PORT:-8787}"
+STATE="$HOME/.cache/tier-router"
+LOG="${TIER_ROUTER_LOG:-$STATE/decisions.jsonl}"
 mkdir -p "$STATE"
 
 running() { timeout 1 bash -c "exec 3<>/dev/tcp/127.0.0.1/$PORT" 2>/dev/null; }
@@ -19,15 +19,15 @@ running() { timeout 1 bash -c "exec 3<>/dev/tcp/127.0.0.1/$PORT" 2>/dev/null; }
 start() {
     if running; then return 0; fi
     # Fully detached, so nothing that ran this waits on the proxy.
-    (cd "$HOME_DIR" && TEV1_ROUTER_PORT="$PORT" setsid -f python3 -s -m tev1_router.proxy --port "$PORT" \
+    (cd "$HOME_DIR" && TIER_ROUTER_PORT="$PORT" setsid -f python3 -s -m tier_router.proxy --port "$PORT" \
         </dev/null >>"$STATE/proxy.log" 2>&1)
     for _ in $(seq 1 150); do running && return 0; sleep 0.2; done
-    echo "tev1-router: the proxy did not start; see $STATE/proxy.log" >&2
+    echo "tier-router: the proxy did not start; see $STATE/proxy.log" >&2
     return 1
 }
 
 case "${1:-claude}" in
-    start) start && echo "tev1-router on http://127.0.0.1:$PORT" ;;
+    start) start && echo "tier-router on http://127.0.0.1:$PORT" ;;
     stop)
         if pkill -f "[t]ev1_router[.]proxy --port $PORT"; then echo "stopped"; else echo "not running"; fi
         rm -f "$STATE/proxy.pid" ;;

@@ -1,11 +1,23 @@
 {
-  "name": "tev1-router",
-  "version": "0.1.0",
-  "description": "Picks Haiku, Sonnet or Opus for each prompt with tev1, a small local decision model in Ollama: no proxy, no Claude tokens spent on routing.",
-  "author": { "name": "idan2025" },
-  "homepage": "https://github.com/idan2025/tev1-router",
+  "name": "tier-router",
+  "version": "0.2.0",
+  "description": "Picks Haiku, Sonnet or Opus for each prompt with a decision model: tev1 locally in Ollama, or Jev in TypeSafe's cloud. No proxy, no Claude tokens spent on routing.",
+  "author": {
+    "name": "idan2025"
+  },
+  "homepage": "https://github.com/idan2025/tier-router",
   "license": "MIT",
   "userConfig": {
+    "backend": {
+      "type": "string",
+      "title": "Decision backend",
+      "description": "ollama: local tev1. jev: TypeSafe's cloud Jev (needs an API key).",
+      "default": "ollama",
+      "options": [
+        "ollama",
+        "jev"
+      ]
+    },
     "ollamaUrl": {
       "type": "string",
       "title": "Ollama URL",
@@ -18,8 +30,42 @@
       "description": "The Ollama decision model to ask (tev1 or tev1:0.8b).",
       "default": "tev1"
     },
-    "haikuModel": { "type": "string", "title": "Haiku model", "description": "Model id for quick tasks.", "default": "claude-haiku-5-5" },
-    "sonnetModel": { "type": "string", "title": "Sonnet model", "description": "Model id for normal tasks.", "default": "claude-sonnet-5-5" },
-    "opusModel": { "type": "string", "title": "Opus model", "description": "Model id for hard tasks.", "default": "claude-opus-5-5" }
+    "jevApiKey": {
+      "type": "string",
+      "title": "TypeSafe API key",
+      "description": "Only for the jev backend. Sent to the Jev URL as a bearer token.",
+      "default": "",
+      "sensitive": true
+    },
+    "jevModel": {
+      "type": "string",
+      "title": "Jev model",
+      "description": "The Jev model id to ask.",
+      "default": "jev-latest"
+    },
+    "jevUrl": {
+      "type": "string",
+      "title": "Jev URL",
+      "description": "TypeSafe API base URL.",
+      "default": "https://api.typesafe.ai"
+    },
+    "haikuModel": {
+      "type": "string",
+      "title": "Haiku model",
+      "description": "Model id for quick tasks.",
+      "default": "claude-haiku-5-5"
+    },
+    "sonnetModel": {
+      "type": "string",
+      "title": "Sonnet model",
+      "description": "Model id for normal tasks.",
+      "default": "claude-sonnet-5-5"
+    },
+    "opusModel": {
+      "type": "string",
+      "title": "Opus model",
+      "description": "Model id for hard tasks.",
+      "default": "claude-opus-5-5"
+    }
   }
 }

@@ -16,7 +16,7 @@ of the main conversation's requests:
   If the API refuses a request we re-modelled, it is sent once more as it
   came.
 
-  python3 -m tev1_router.proxy [--port 8787]
+  python3 -m tier_router.proxy [--port 8787]
 """
 
 import argparse
@@ -33,15 +33,15 @@ from pathlib import Path
 
 from . import classify
 
-UPSTREAM = urllib.parse.urlsplit(os.environ.get("TEV1_ROUTER_UPSTREAM", "https://api.anthropic.com"))
+UPSTREAM = urllib.parse.urlsplit(os.environ.get("TIER_ROUTER_UPSTREAM", "https://api.anthropic.com"))
 MODELS = {
-    "haiku": os.environ.get("TEV1_ROUTER_HAIKU", "claude-haiku-5-5"),
-    "sonnet": os.environ.get("TEV1_ROUTER_SONNET", "claude-sonnet-5-5"),
-    "opus": os.environ.get("TEV1_ROUTER_OPUS", "claude-opus-5-5"),
+    "haiku": os.environ.get("TIER_ROUTER_HAIKU", "claude-haiku-5-5"),
+    "sonnet": os.environ.get("TIER_ROUTER_SONNET", "claude-sonnet-5-5"),
+    "opus": os.environ.get("TIER_ROUTER_OPUS", "claude-opus-5-5"),
 }
 # How far past a threshold a score must be to switch a conversation's model.
-HYSTERESIS = float(os.environ.get("TEV1_ROUTER_HYSTERESIS", "0.03"))
-LOG = Path(os.environ.get("TEV1_ROUTER_LOG", Path.home() / ".cache/tev1-router/decisions.jsonl"))
+HYSTERESIS = float(os.environ.get("TIER_ROUTER_HYSTERESIS", "0.03"))
+LOG = Path(os.environ.get("TIER_ROUTER_LOG", Path.home() / ".cache/tier-router/decisions.jsonl"))
 HOP_HEADERS = {"host", "content-length", "connection", "keep-alive", "transfer-encoding",
                "accept-encoding", "proxy-connection", "upgrade", "te", "trailer"}
 
@@ -161,7 +161,7 @@ def _dump_shape(data):
         return v
     shape = {"model": data.get("model"), "tools": len(data.get("tools") or []),
              "keys": sorted(data), "messages": cut(data.get("messages"))}
-    with open(os.environ["TEV1_ROUTER_DUMP"], "a") as f:
+    with open(os.environ["TIER_ROUTER_DUMP"], "a") as f:
         f.write(json.dumps(shape) + "\n")
 
 
@@ -205,7 +205,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.command == "POST" and self.path.split("?")[0] == "/v1/messages" and body:
             try:
                 data = json.loads(body)
-                if os.environ.get("TEV1_ROUTER_DUMP"):
+                if os.environ.get("TIER_ROUTER_DUMP"):
                     _dump_shape(data)
                 model, entry = route(data)
                 if model and model != data.get("model"):
@@ -233,7 +233,7 @@ class Handler(BaseHTTPRequestHandler):
                 _log(entry)
             try:
                 msg = json.dumps({"type": "error", "error": {"type": "api_error",
-                                  "message": f"tev1-router could not reach the API: {e}"}}).encode()
+                                  "message": f"tier-router could not reach the API: {e}"}}).encode()
                 self.send_response(502)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(msg)))
@@ -247,18 +247,18 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--port", type=int, default=int(os.environ.get("TEV1_ROUTER_PORT", "8787")))
+    ap.add_argument("--port", type=int, default=int(os.environ.get("TIER_ROUTER_PORT", "8787")))
     a = ap.parse_args()
     server = ThreadingHTTPServer(("127.0.0.1", a.port), Handler)
     server.daemon_threads = True
-    print(f"tev1-router on http://127.0.0.1:{a.port} -> {UPSTREAM.geturl()}; "
+    print(f"tier-router on http://127.0.0.1:{a.port} -> {UPSTREAM.geturl()}; "
           f"models {MODELS}; log {LOG}", file=sys.stderr, flush=True)
     def warm():
         # Load tev1 now, so the first prompt does not wait ~40 s for it.
         try:
             classify.ask_tev1("warm up", timeout=120)
         except Exception as e:
-            print(f"tev1-router: tev1 not ready ({e}); prompts keep their model until it is",
+            print(f"tier-router: tev1 not ready ({e}); prompts keep their model until it is",
                   file=sys.stderr, flush=True)
     threading.Thread(target=warm, daemon=True).start()
     server.serve_forever()
